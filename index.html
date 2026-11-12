@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StudyBot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+    #box { width: 100%; max-width: 420px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.15); display: flex; flex-direction: column; height: 80vh; }
+    #log { flex: 1; overflow-y: auto; padding: 12px; }
+    .msg { margin: 6px 0; padding: 8px 12px; border-radius: 14px; max-width: 80%; }
+    .user { background: #0078ff; color: #fff; margin-left: auto; }
+    .bot { background: #e4e6eb; }
+    #row { display: flex; border-top: 1px solid #ddd; }
+    #inp { flex: 1; border: none; padding: 12px; outline: none; }
+    button { border: none; background: #0078ff; color: #fff; padding: 0 18px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="box">
+    <div id="log"></div>
+    <div id="row">
+      <input id="inp" placeholder="Message likho..." autocomplete="off">
+      <button onclick="send()">Send</button>
+    </div>
+  </div>
+
+<script>
+const log = document.getElementById("log");
+const inp = document.getElementById("inp");
+
+function add(text, who) {
+  const d = document.createElement("div");
+  d.className = "msg " + who;
+  d.textContent = text;
+  log.appendChild(d);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function send() {
+  const text = inp.value.trim();
+  if (!text) return;
+  add(text, "user");
+  inp.value = "";
+  const res = await fetch("/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: text})
+  });
+  const data = await res.json();
+  add(data.reply, "bot");
+}
+
+inp.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+add("Hi! Ami StudyBot. Kichu jiggesh koro.", "bot");
+</script>
+</body>
+</html>
